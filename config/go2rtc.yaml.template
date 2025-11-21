@@ -1,0 +1,13 @@
+streams:
+  sukhumvit:
+    - rtsp://ekkamaicam:${CAMERA_PASSWORD}@home.bangkokcam.com:8554/stream2
+    - rtsp://ekkamaicam:${CAMERA_PASSWORD}@home.bangkokcam.com:8554/stream1#video=copy#width=1280#height=720
+
+api:
+  listen: ":1984"
+
+webrtc:
+  listen: ":8555"
+
+log:
+  level: info
