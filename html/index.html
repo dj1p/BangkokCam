@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live webcam view of Sukhumvit Road in Bangkok, Thailand. Watch the bustling streets of Bangkok in real-time.">
+    <meta name="keywords" content="Bangkok webcam, Sukhumvit live, Thailand camera, Bangkok live stream">
+    <title>Bangkok Live Cam - Sukhumvit Road</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇹🇭</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+        
+        .video-section {
+            background: rgba(0,0,0,0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #888;
+            z-index: 1;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #888;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .status-dot.live {
+            background: #22c55e;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(102,126,234,0.5);
+        }
+        
+        .info-card h3 {
+            margin-bottom: 12px;
+            color: #667eea;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card p {
+            color: #ccc;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .time-display {
+            font-size: 1.8em;
+            font-weight: 300;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 50px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .info {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇹🇭 Bangkok Live Cam</h1>
+            <p class="subtitle">Real-time view of Sukhumvit Road, Bangkok</p>
+        </header>
+
+        <div class="video-section">
+            <div class="video-container">
+                <video id="video" autoplay muted playsinline></video>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Connecting to stream...</p>
+                </div>
+            </div>
+            <div class="status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <div class="info">
+            <div class="info-card">
+                <h3>📍 Location</h3>
+                <p>Sukhumvit Road, Bangkok's main artery running through the heart of the city. One of Thailand's most iconic streets.</p>
+            </div>
+            <div class="info-card">
+                <h3>🕐 Bangkok Time</h3>
+                <p class="time-display" id="bangkok-time">--:--:--</p>
+                <p style="margin-top: 8px; font-size: 0.85em; color: #888;">ICT (UTC+7)</p>
+            </div>
+            <div class="info-card">
+                <h3>📹 Stream Info</h3>
+                <p>Live WebRTC stream • HD quality • Works on all devices • Best viewed in fullscreen</p>
+            </div>
+            <div class="info-card">
+                <h3>🌤️ About</h3>
+                <p>This camera provides a live view of Bangkok's vibrant street life, traffic, and weather conditions 24/7.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by <a href="https://github.com/AlexxIT/go2rtc" target="_blank">go2rtc</a> • Hosted in Thailand</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">© 2024 bangkokcam.com</p>
+        </footer>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const loading = document.getElementById('loading');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const errorMessage = document.getElementById('error-message');
+        
+        let pc = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        
+        async function startStream() {
+            try {
+                // Clean up existing connection
+                if (pc) {
+                    pc.close();
+                }
+                
+                pc = new RTCPeerConnection({
+                    iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+                });
+                
+                pc.addTransceiver('video', {direction: 'recvonly'});
+                pc.addTransceiver('audio', {direction: 'recvonly'});
+                
+                pc.ontrack = (event) => {
+                    console.log('Track received:', event.track.kind);
+                    video.srcObject = event.streams[0];
+                    loading.style.display = 'none';
+                    statusDot.classList.add('live');
+                    statusText.textContent = 'Live';
+                    errorMessage.style.display = 'none';
+                    reconnectAttempts = 0;
+                };
+                
+                pc.oniceconnectionstatechange = () => {
+                    console.log('ICE connection state:', pc.iceConnectionState);
+                    if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+                        handleDisconnect();
+                    }
+                };
+                
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                
+                const response = await fetch('/api/ws?src=sukhumvit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/sdp'
+                    },
+                    body: offer.sdp
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const answer = await response.text();
+                await pc.setRemoteDescription({type: 'answer', sdp: answer});
+                
+            } catch (error) {
+                console.error('Stream error:', error);
+                handleError(error);
+            }
+        }
+        
+        function handleDisconnect() {
+            statusDot.classList.remove('live');
+            statusText.textContent = 'Reconnecting...';
+            reconnect();
+        }
+        
+        function handleError(error) {
+            loading.style.display = 'block';
+            loading.innerHTML = '<div class="spinner"></div><p>Connection failed. Retrying...</p>';
+            statusDot.classList.remove('live');
+            statusText.textContent = 'Offline';
+            
+            errorMessage.textContent = `Error: ${error.message}. Attempting to reconnect...`;
+            errorMessage.style.display = 'block';
+            
+            reconnect();
+        }
+        
+        function reconnect() {
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+                console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`);
+                setTimeout(startStream, delay);
+            } else {
+                errorMessage.textContent = 'Unable to connect to stream. Please refresh the page.';
+                errorMessage.style.display = 'block';
+                statusText.textContent = 'Connection failed';
+            }
+        }
+        
+        // Update Bangkok time
+        function updateTime() {
+            const now = new Date();
+            const bangkokTime = now.toLocaleTimeString('en-US', {
+                timeZone: 'Asia/Bangkok',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('bangkok-time').textContent = bangkokTime;
+        }
+        
+        // Fullscreen on video click
+        video.addEventListener('click', () => {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            }
+        });
+        
+        // Start everything
+        startStream();
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Visibility change handling
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && pc && pc.iceConnectionState !== 'connected') {
+                console.log('Page visible again, reconnecting...');
+                startStream();
+            }
+        });
+    </script>
+</body>
+</html>
