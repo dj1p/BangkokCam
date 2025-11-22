@@ -5,7 +5,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "3001:80"
     command:
       - /bin/sh
       - -c
