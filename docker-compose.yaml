@@ -6,8 +6,12 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Bangkok
-    expose:
-      - "1984"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bangkokcam.rule=Host(`cam.bangkokcam.com`)"
+      - "traefik.http.routers.bangkokcam.entrypoints=websecure"
+      - "traefik.http.routers.bangkokcam.tls=true"
+      - "traefik.http.services.bangkokcam.loadbalancer.server.port=1984"
     command: >
       sh -c '
       mkdir -p /config &&
