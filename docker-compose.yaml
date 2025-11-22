@@ -8,7 +8,7 @@ services:
       - TZ=Asia/Bangkok
       - CAMERA_PASSWORD=${CAMERA_PASSWORD}
     ports:
-      - "8080:1984"
+      - "8081:1984"
     command: >
       sh -c "
       mkdir -p /config &&
