@@ -8,29 +8,18 @@ services:
       - TZ=Asia/Bangkok
     ports:
       - "3001:1984"
-    command: >
-      sh -c '
-      mkdir -p /config &&
-      echo "streams:" > /config/go2rtc.yaml &&
-      echo "  sukhumvit:" >> /config/go2rtc.yaml &&
-      echo "    - https://go2rtc.bangkokcam.com/api/stream.m3u8?src=sukhumvit" >> /config/go2rtc.yaml &&
-      echo "api:" >> /config/go2rtc.yaml &&
-      echo "  listen: \":1984\"" >> /config/go2rtc.yaml &&
-      echo "webrtc:" >> /config/go2rtc.yaml &&
-      echo "  listen: \":8555\"" >> /config/go2rtc.yaml &&
-      go2rtc
-      '
-```
-
-**Commit to GitHub → Redeploy in Coolify**
-
-## Step 3: Test!
-
-Go to `https://cam.bangkokcam.com` - you should see the stream! 🎉
-
-The complete flow:
-```
-Internet → cam.bangkokcam.com (VPS) 
-         → go2rtc.bangkokcam.com (Cloudflare Tunnel) 
-         → Your laptop (go2rtc) 
-         → Camera
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /config
+        cat > /config/go2rtc.yaml <<'EOF'
+        streams:
+          sukhumvit:
+            - https://go2rtc.bangkokcam.com/api/stream.m3u8?src=sukhumvit
+        api:
+          listen: ":1984"
+        webrtc:
+          listen: ":8555"
+        EOF
+        go2rtc
