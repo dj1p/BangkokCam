@@ -7,7 +7,7 @@ services:
     environment:
       - TZ=Asia/Bangkok
     ports:
-      - "8081:1984"
+      - "80:1984"
     command: >
       sh -c '
       mkdir -p /config &&
