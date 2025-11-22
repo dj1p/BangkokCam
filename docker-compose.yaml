@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Bangkok
-    ports:
-      - "80:1984"
+    expose:
+      - "1984"
     command: >
       sh -c '
       mkdir -p /config &&
@@ -18,5 +18,5 @@ services:
       echo "  listen: \":1984\"" >> /config/go2rtc.yaml &&
       echo "webrtc:" >> /config/go2rtc.yaml &&
       echo "  listen: \":8555\"" >> /config/go2rtc.yaml &&
-      /usr/local/bin/go2rtc
+      go2rtc
       '
