@@ -18,11 +18,7 @@ services:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Bangkok Live Cam - Sukhumvit Road</title>
             <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -42,22 +38,23 @@ services:
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
-                .subtitle {
-                    color: #aaa;
-                    margin-top: 10px;
-                    font-size: 1.1em;
-                }
-                .stream-container {
+                .subtitle { color: #aaa; margin-top: 10px; font-size: 1.1em; }
+                .video-container {
                     max-width: 1600px;
                     margin: 30px auto;
                     padding: 0 20px;
                 }
-                iframe {
+                video {
                     width: 100%;
-                    height: 80vh;
-                    border: none;
+                    max-height: 80vh;
+                    background: #000;
                     border-radius: 12px;
                     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+                }
+                .status {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
                 }
                 footer {
                     text-align: center;
@@ -72,12 +69,52 @@ services:
                 <h1>🇹🇭 Bangkok Live Cam</h1>
                 <p class="subtitle">Real-time view of Sukhumvit Road, Bangkok</p>
             </header>
-            <div class="stream-container">
-                <iframe src="https://go2rtc.bangkokcam.com/" allowfullscreen></iframe>
+            <div class="video-container">
+                <video id="video" autoplay muted playsinline controls></video>
+                <div class="status" id="status">Connecting to stream...</div>
             </div>
             <footer>
                 <p>Powered by go2rtc • Bangkok, Thailand</p>
             </footer>
+            <script>
+                const video = document.getElementById('video');
+                const status = document.getElementById('status');
+                
+                async function startStream() {
+                    try {
+                        const pc = new RTCPeerConnection({
+                            iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+                        });
+                        
+                        pc.addTransceiver('video', {direction: 'recvonly'});
+                        pc.addTransceiver('audio', {direction: 'recvonly'});
+                        
+                        pc.ontrack = (event) => {
+                            video.srcObject = event.streams[0];
+                            status.textContent = '🔴 Live';
+                            status.style.color = '#22c55e';
+                        };
+                        
+                        const offer = await pc.createOffer();
+                        await pc.setLocalDescription(offer);
+                        
+                        const response = await fetch('https://go2rtc.bangkokcam.com/api/ws?src=sukhumvit', {
+                            method: 'POST',
+                            body: offer.sdp
+                        });
+                        
+                        const answer = await response.text();
+                        await pc.setRemoteDescription({type: 'answer', sdp: answer});
+                        
+                    } catch (error) {
+                        console.error('Stream error:', error);
+                        status.textContent = 'Stream offline';
+                        status.style.color = '#ef4444';
+                    }
+                }
+                
+                startStream();
+            </script>
         </body>
         </html>
         EOF
