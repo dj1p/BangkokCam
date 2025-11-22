@@ -1,32 +1,25 @@
 version: '3.8'
 
 services:
-  go2rtc:
+  bangkokcam:
     image: alexxit/go2rtc:latest
-    container_name: bangkokcam-go2rtc
     restart: unless-stopped
     environment:
       - TZ=Asia/Bangkok
       - CAMERA_PASSWORD=${CAMERA_PASSWORD}
-    volumes:
-      - ./config/go2rtc.yaml:/config/go2rtc.yaml
-    networks:
-      - bangkokcam_net
-
-  nginx:
-    image: nginx:alpine
-    container_name: bangkokcam-web
-    restart: unless-stopped
-    volumes:
-      - ./html:/usr/share/nginx/html:ro
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "${WEB_PORT:-8080}:80"
-    depends_on:
-      - go2rtc
-    networks:
-      - bangkokcam_net
-
-networks:
-  bangkokcam_net:
-    driver: bridge
+      - "8080:1984"
+    command: >
+      sh -c "
+      mkdir -p /config &&
+      cat > /config/go2rtc.yaml <<EOF
+      streams:
+        sukhumvit:
+          - rtsp://ekkamaicam:\${CAMERA_PASSWORD}@home.bangkokcam.com:8554/stream2
+      api:
+        listen: \":1984\"
+      webrtc:
+        listen: \":8555\"
+      EOF
+      && /init
+      "
