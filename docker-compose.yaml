@@ -18,5 +18,5 @@ services:
       echo "  listen: \":1984\"" >> /config/go2rtc.yaml &&
       echo "webrtc:" >> /config/go2rtc.yaml &&
       echo "  listen: \":8555\"" >> /config/go2rtc.yaml &&
-      /init
+      /usr/local/bin/go2rtc
       '
